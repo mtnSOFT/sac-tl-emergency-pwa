@@ -23,6 +23,15 @@ marked.setOptions({
   mangle: false
 });
 
+/* Fetch with a hard timeout — prevents infinite spinner when SW is not yet
+   installed and the device is offline (network never returns an error). */
+function fetchWithTimeout(url, options = {}, ms = 5000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal })
+    .finally(() => clearTimeout(tid));
+}
+
 /* Strip YAML frontmatter before rendering */
 function stripFrontmatter(md) {
   return md.replace(/^---\n[\s\S]*?\n---\n+/, '');
@@ -33,13 +42,13 @@ function stripFrontmatter(md) {
 async function init() {
   try {
     // Cache-bust version.json so we always see the latest
-    const versionResp = await fetch('version.json', { cache: 'no-store' }).catch(() => null);
+    const versionResp = await fetchWithTimeout('version.json', { cache: 'no-store' }).catch(() => null);
     if (versionResp?.ok) {
       const v = await versionResp.json();
       versionEl.textContent = `v${v.version.slice(0, 8)}`;
     }
 
-    const indexResp = await fetch('content/index.json');
+    const indexResp = await fetchWithTimeout('content/index.json');
     pages = await indexResp.json();
 
     renderTabs();
@@ -78,7 +87,7 @@ async function loadPage(file) {
   });
 
   try {
-    const resp = await fetch(`content/${file}`);
+    const resp = await fetchWithTimeout(`content/${file}`);
     const md   = await resp.text();
     contentEl.innerHTML = marked.parse(stripFrontmatter(md));
     contentEl.scrollTop = 0;

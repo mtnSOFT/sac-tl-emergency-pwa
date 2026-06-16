@@ -79,14 +79,18 @@ async function cacheFirst(request) {
 }
 
 async function networkFirst(request) {
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), 3000);
   try {
-    const fresh = await fetch(request);
+    const fresh = await fetch(request, { signal: controller.signal });
+    clearTimeout(tid);
     if (fresh.ok) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, fresh.clone());
     }
     return fresh;
   } catch {
+    clearTimeout(tid);
     const cached = await caches.match(request);
     return cached || Response.error();
   }
