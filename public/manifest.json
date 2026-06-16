@@ -1,7 +1,7 @@
 {
-  "name": "SAC Notfallblatt",
+  "name": "SAC Notfall App",
   "short_name": "SAC Notfall",
-  "description": "Notfallblatt für Tourenleiter – Sektion Blüemlisalp",
+  "description": "Notfall App für Tourenleiter – Sektion Blüemlisalp",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

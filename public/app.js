@@ -1,5 +1,5 @@
 /* ============================================================
- * SAC Notfallblatt – App
+ * SAC Notfall App – App
  * Vanilla JS · no framework · loads markdown content & manages SW
  * ============================================================ */
 

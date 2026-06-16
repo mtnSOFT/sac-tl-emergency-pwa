@@ -1,5 +1,5 @@
 /* ============================================================
- * SAC Notfallblatt – Service Worker
+ * SAC Notfall App – Service Worker
  * Strategy: cache-first for everything.
  * Content is refreshed via the SW update cycle: a new deploy
  * produces a new CACHE_VERSION → new SW installs → all APP_SHELL
