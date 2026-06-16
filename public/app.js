@@ -91,23 +91,35 @@ async function loadPage(file) {
 /* ── Service Worker registration & update flow ───────────── */
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      // Check for updates every 60 minutes while app is open
-      setInterval(() => reg.update(), 60 * 60 * 1000);
+  window.addEventListener('load', async () => {
+    const reg = await navigator.serviceWorker.register('sw.js');
 
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            // A new SW is waiting → show update prompt
-            showUpdateToast(newSW);
-          }
-        });
+    // Show toast if a SW is already waiting (e.g. after a page reload)
+    if (reg.waiting) showUpdateToast(reg.waiting);
+
+    // Check every 30 minutes while app is open
+    setInterval(() => reg.update(), 30 * 60 * 1000);
+
+    // Check when the user returns to the tab after ≥ 5 min in background
+    let hiddenAt = 0;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+      } else if (hiddenAt && Date.now() - hiddenAt > 5 * 60 * 1000) {
+        reg.update();
+      }
+    });
+
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateToast(newSW);
+        }
       });
     });
 
-    // Listen for the new SW to take control after we tell it to skip waiting
+    // New SW took control → reload to activate it
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (refreshing) return;

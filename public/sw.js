@@ -16,6 +16,7 @@ const APP_SHELL = [
   'app.js',
   'styles.css',
   'manifest.json',
+  'vendor/marked.min.js',
   'version.json',
   'content/index.json',
   'content/01-verhalten.md',
@@ -23,8 +24,6 @@ const APP_SHELL = [
   'content/03-krisenstab.md',
   'icons/icon-192.png',
   'icons/icon-512.png',
-  'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js',
-  'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
