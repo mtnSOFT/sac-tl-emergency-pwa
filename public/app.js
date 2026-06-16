@@ -97,6 +97,52 @@ async function loadPage(file) {
   }
 }
 
+/* ── Install banner ───────────────────────────────────────── */
+
+(function initInstallBanner() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                    || navigator.standalone === true;
+  if (isStandalone) return;
+  if (localStorage.getItem('pwa-install-dismissed')) return;
+
+  const bannerEl  = $('#install-banner');
+  const hintEl    = $('#install-hint');
+  const btnEl     = $('#install-btn');
+  const dismissEl = $('#install-dismiss');
+
+  function dismiss() {
+    localStorage.setItem('pwa-install-dismissed', '1');
+    bannerEl.hidden = true;
+  }
+  dismissEl.addEventListener('click', dismiss);
+
+  // iOS: no beforeinstallprompt – show manual hint
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+             || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
+  if (isIOS) {
+    hintEl.innerHTML = 'Teilen&nbsp;<strong>⬆</strong> → <em>Zum Home-Bildschirm</em>';
+    bannerEl.hidden = false;
+    return;
+  }
+
+  // Android / Chrome: intercept the browser's native prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    hintEl.textContent = 'Schneller Zugriff, auch offline';
+    btnEl.hidden = false;
+    bannerEl.hidden = false;
+
+    btnEl.addEventListener('click', async () => {
+      e.prompt();
+      const { outcome } = await e.userChoice;
+      if (outcome === 'accepted') bannerEl.hidden = true;
+    }, { once: true });
+  });
+
+  // Hide banner once installed via any path
+  window.addEventListener('appinstalled', () => { bannerEl.hidden = true; });
+})();
+
 /* ── Service Worker registration & update flow ───────────── */
 
 if ('serviceWorker' in navigator) {

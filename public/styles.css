@@ -393,6 +393,76 @@ a { color: var(--red); text-decoration: none; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── INSTALL BANNER ───────────────────────────────────────── */
+
+.install-banner {
+  position: fixed;
+  left: 14px; right: 14px;
+  bottom: calc(var(--safe-bottom) + 14px);
+  background: var(--ink);
+  color: #fff;
+  border-radius: 4px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 198;
+  border-left: 4px solid var(--slate);
+  animation: slideUp .25s ease;
+}
+
+.install-banner[hidden] { display: none; }
+
+.install-banner__text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.install-banner__text span {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+}
+
+.install-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#install-btn {
+  background: var(--slate);
+  color: #fff;
+  border: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#install-btn[hidden] { display: none; }
+
+#install-dismiss {
+  background: none;
+  border: 0;
+  color: rgba(255,255,255,0.5);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
 /* ── UPDATE TOAST ─────────────────────────────────────────── */
 
 .update-toast {
