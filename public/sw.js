@@ -1,9 +1,9 @@
 /* ============================================================
  * SAC Notfallblatt – Service Worker
- * Strategy:
- *   - App shell: cache-first
- *   - Content (md, json): network-first w/ cache fallback
- *   - Everything else: cache-first
+ * Strategy: cache-first for everything.
+ * Content is refreshed via the SW update cycle: a new deploy
+ * produces a new CACHE_VERSION → new SW installs → all APP_SHELL
+ * assets are pre-fetched fresh → update toast prompts reload.
  * CACHE_VERSION is replaced at build time by build.js
  * ============================================================ */
 
@@ -46,21 +46,8 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  if (request.method !== 'GET') return;
-
-  const url = new URL(request.url);
-
-  // Content + version.json: network-first (so updates show up quickly)
-  if (url.pathname.endsWith('.md') ||
-      url.pathname.endsWith('index.json') ||
-      url.pathname.endsWith('version.json')) {
-    event.respondWith(networkFirst(request));
-    return;
-  }
-
-  // Everything else: cache-first
-  event.respondWith(cacheFirst(request));
+  if (event.request.method !== 'GET') return;
+  event.respondWith(cacheFirst(event.request));
 });
 
 async function cacheFirst(request) {
@@ -74,24 +61,6 @@ async function cacheFirst(request) {
     }
     return fresh;
   } catch {
-    return cached || Response.error();
-  }
-}
-
-async function networkFirst(request) {
-  const controller = new AbortController();
-  const tid = setTimeout(() => controller.abort(), 3000);
-  try {
-    const fresh = await fetch(request, { signal: controller.signal });
-    clearTimeout(tid);
-    if (fresh.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, fresh.clone());
-    }
-    return fresh;
-  } catch {
-    clearTimeout(tid);
-    const cached = await caches.match(request);
-    return cached || Response.error();
+    return Response.error();
   }
 }

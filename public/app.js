@@ -42,7 +42,7 @@ function stripFrontmatter(md) {
 async function init() {
   try {
     // Cache-bust version.json so we always see the latest
-    const versionResp = await fetchWithTimeout('version.json', { cache: 'no-store' }).catch(() => null);
+    const versionResp = await fetchWithTimeout('version.json').catch(() => null);
     if (versionResp?.ok) {
       const v = await versionResp.json();
       versionEl.textContent = `v${v.version.slice(0, 8)}`;
